@@ -4,9 +4,12 @@ import alluxio.AlluxioURI;
 import alluxio.client.file.FileOutStream;
 import alluxio.client.file.FileSystem;
 import alluxio.exception.AlluxioException;
+import org.apache.apex.adapters.spark.operators.CountByValueOperator;
 import org.apache.apex.adapters.spark.properties.PathProperties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
@@ -14,10 +17,11 @@ import java.io.*;
  * Created by anurag on 24/2/17.
  */
 public class WriteToFS {
+    static Logger log = LoggerFactory.getLogger(CountByValueOperator.class);
     public static void write(String path, Object o){
         PathProperties properties = new PathProperties();
         String fs =properties.getProperty("fs").toLowerCase();
-
+        String baseHDFSPath = properties.getProperty("baseHDFSPath");
         switch (fs){
             case "alluxio":
                 writeFileToAlluxio(path,o);
@@ -26,7 +30,7 @@ public class WriteToFS {
                 writeFileToLocal(path, o);
                 break;
             case "hdfs":
-                writeFileToHDFS(path, o);
+                writeFileToHDFS(baseHDFSPath+path, o);
                 break;
         }
     }
@@ -62,7 +66,7 @@ public class WriteToFS {
                 hdfs.delete(pt,false);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -79,7 +83,7 @@ public class WriteToFS {
             outStream.close();
         }
         catch (AlluxioException | IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
     }
@@ -110,12 +114,13 @@ public class WriteToFS {
             if(fs.exists(pathURI)) fs.delete(pathURI);
 
         } catch (IOException | AlluxioException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
     }
     public synchronized static void writeFileToHDFS(String path,Object o){
         Configuration configuration = new Configuration(true);
+        log.info("path to write {}",path);
         try {
             Path file = new Path(path);
             org.apache.hadoop.fs.FileSystem hdfs = org.apache.hadoop.fs.FileSystem.get(file.toUri(), configuration);
@@ -129,7 +134,7 @@ public class WriteToFS {
                 oos.close();
             createHDFSSuccessFile();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -145,7 +150,7 @@ public class WriteToFS {
             }
             hdfs.create(file);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
     }

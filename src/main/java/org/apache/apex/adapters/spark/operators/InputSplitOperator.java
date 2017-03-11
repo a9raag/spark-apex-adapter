@@ -20,8 +20,7 @@ public class InputSplitOperator<T> extends BaseOperatorSerializable<T> implement
 
     public String path;
     public boolean shutApp=false;
-    public String appName="";
-    public int minPartitions;
+    public static int minPartitions;
     public transient InputSplit splits[];
     public transient FileInputFormat fileInputFormat;
     public transient Configuration conf;
@@ -61,8 +60,8 @@ public class InputSplitOperator<T> extends BaseOperatorSerializable<T> implement
                 sent=true;
             }
         }
-        catch (Exception o){
-
+        catch (Exception e){
+            throw new RuntimeException(e);
         }
     }
     public InputSplit[] splitFileRecorder(String path, int minPartitions){
@@ -78,21 +77,6 @@ public class InputSplitOperator<T> extends BaseOperatorSerializable<T> implement
     }
 
     @Override
-    public void endWindow() {
-        super.endWindow();
-        /*if(shutApp) {
-            shutApp = false;
-            try {
-                if(checkSucess("hdfs://localhost:54310/harsh/chi/success/Chi"+appName+"Success"))
-                    throw new ShutdownException();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
-    }
-
-
-    @Override
     public void beginWindow(long windowId) {
         super.beginWindow(windowId);
         if(sent) {
@@ -100,22 +84,6 @@ public class InputSplitOperator<T> extends BaseOperatorSerializable<T> implement
             shutApp=true;
         }
     }
-
-/*
-    public boolean checkSucess(String path) throws IOException {
-        Path pt=new Path(path);
-        FileSystem hdfs = FileSystem.get(pt.toUri(), conf);
-        if(hdfs.exists(pt))
-        {
-            //hdfs.delete(pt,false);
-            return true;
-        }
-        else
-            return false;
-
-    }
-*/
-
 
     public final  DefaultOutputPortSerializable<Object> output = new DefaultOutputPortSerializable<Object>();
     public final  DefaultOutputPortSerializable<Boolean> controlOut = new DefaultOutputPortSerializable<Boolean>();

@@ -30,7 +30,7 @@ public class TestChiSqSelector implements Serializable {
     }
     public TestChiSqSelector(ApexContext sc){
         PathProperties properties = new PathProperties();
-        String path = properties.getProperty("chiTrainData");
+        String path = properties.getProperty("chiTrainDataHDFS");
 
         ClassTag<LabeledPoint> tag = scala.reflect.ClassTag$.MODULE$.apply(LabeledPoint.class);
         ApexRDD<LabeledPoint> inputData = new ApexRDD<LabeledPoint> (MLUtils.loadLibSVMFile(sc, path,-1,1), tag);

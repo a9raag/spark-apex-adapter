@@ -2,7 +2,7 @@
 
     <property>
         <name>dt.operator.*.attr.MEMORY_MB</name>
-        <value>32</value>
+        <value>128</value>
         <!--<name>dt.application.reduce.operator.*.attr.MEMORY_MB</name>-->
         <!--<value>128</value>-->
         <!--<name>dt.application.count.operator.*.attr.MEMORY_MB</name>-->

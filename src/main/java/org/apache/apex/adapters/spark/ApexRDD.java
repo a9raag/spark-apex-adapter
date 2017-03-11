@@ -41,6 +41,7 @@ import java.lang.Long;
 import java.util.*;
 
 import static com.datatorrent.api.Context.OperatorContext.PARTITIONER;
+import static org.apache.apex.adapters.spark.io.ReadFromFS.successFileExists;
 import static org.apache.apex.adapters.spark.io.WriteToFS.deleteSUCCESSFile;
 
 public class ApexRDD<T> extends ScalaApexRDD<T> implements Serializable {
@@ -100,7 +101,7 @@ public class ApexRDD<T> extends ScalaApexRDD<T> implements Serializable {
             BaseOperatorSerializable currentOperator = (BaseOperatorSerializable) cloneDag.getOperatorMeta(cloneDag.getLastOperatorName()).getOperator();
             return currentOperator.getOutputPort();
         } catch (Exception e) {
-            System.out.println("Operator "+cloneDag.getLastOperatorName()+" Doesn't exist in the dag");
+            //System.out.println("Operator "+cloneDag.getLastOperatorName()+" Doesn't exist in the dag");
             e.printStackTrace();
         }
         return currentOperator.getOutputPort();
@@ -110,17 +111,22 @@ public class ApexRDD<T> extends ScalaApexRDD<T> implements Serializable {
         return currentOperator.getInputPort();
     }
     public DefaultOutputPortSerializable getControlOutput(SerializableDAG cloneDag){
-        //BaseInputOperatorSerializable currentOperator= (BaseInputOperatorSerializable) cloneDag.getOperatorMeta(cloneDag.getFirstOperatorName()).getOperator();
-        InputSplitOperator currentInputSplitOperator= (InputSplitOperator) cloneDag.getOperatorMeta(cloneDag.getFirstOperatorName()).getOperator();
-        return currentInputSplitOperator.getControlOut();
+        if(getProperty("fs").equals("hdfs")) {
+            InputSplitOperator currentInputSplitOperator = (InputSplitOperator) cloneDag.getOperatorMeta(cloneDag.getFirstOperatorName()).getOperator();
+            return currentInputSplitOperator.getControlOut();
+        }
+        else {
+            BaseInputOperatorSerializable currentOperator= (BaseInputOperatorSerializable) cloneDag.getOperatorMeta(cloneDag.getFirstOperatorName()).getOperator();
+            return currentOperator.getControlOut();
+        }
     }
     public InputSplitOperator<T> getInputSplitOperator(SerializableDAG cloneDag){
         return (InputSplitOperator) cloneDag.getOperatorMeta(cloneDag.getFirstOperatorName()).getOperator();
     }
     public void enableParallelPartition(BaseOperatorSerializable currentOperator, SerializableDAG cloneDag){
         int minPartitions = getInputSplitOperator(cloneDag).minPartitions;
-        if(minPartitions > 1) {
-            cloneDag.setAttribute(currentOperator, PARTITIONER, new StatelessPartitioner<BaseInputOperatorSerializable>(minPartitions));
+        if (minPartitions > 1) {
+            cloneDag.setAttribute(currentOperator, PARTITIONER, new StatelessPartitioner<BaseOperatorSerializable>(minPartitions));
             cloneDag.setInputPortAttribute(currentOperator.getInputPort(), Context.PortContext.PARTITION_PARALLEL, true);
         }
     }
@@ -278,7 +284,7 @@ public class ApexRDD<T> extends ScalaApexRDD<T> implements Serializable {
         while(!successFileExists()) {
             log.info("Waiting for the _SUCCESS file");
             try {
-                Thread.sleep(10);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
