@@ -69,7 +69,7 @@ public class ReadFromFS {
     public synchronized  static Object readFromAlluxio(String path)  {
         try {
             alluxio.client.file.FileSystem fs = alluxio.client.file.FileSystem.Factory.get();
-            AlluxioURI pathURI = new AlluxioURI("/user/anurag/spark-apex/"+path);
+            AlluxioURI pathURI = new AlluxioURI("/user/krushika/spark-apex/"+path);
             FileInStream inStream = fs.openFile(pathURI);
             ObjectInputStream ois = new ObjectInputStream(inStream);
             return ois.readObject();
@@ -81,7 +81,7 @@ public class ReadFromFS {
     public synchronized static boolean successFileAlluxio(){
 
         alluxio.client.file.FileSystem fs = alluxio.client.file.FileSystem.Factory.get();
-        AlluxioURI pathURI=new AlluxioURI("/user/anurag/spark-apex/_SUCCESS");
+        AlluxioURI pathURI=new AlluxioURI("/user/krushika/spark-apex/_SUCCESS");
         try {
             return fs.exists(pathURI);
         } catch (IOException | AlluxioException e) {

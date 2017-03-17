@@ -21,7 +21,7 @@ public class LinearRegressionTest {
         JavaSparkContext jsc = new JavaSparkContext(conf);
 
         // Load and parse the data
-        String path = properties.getProperty("LinearRegressionTestData");
+        String path = properties.getProperty("lrTest");
         JavaRDD<String> data = jsc.textFile(path,1);
         JavaRDD<LabeledPoint> parsedData = data.map(
                 new Function<String, LabeledPoint>() {

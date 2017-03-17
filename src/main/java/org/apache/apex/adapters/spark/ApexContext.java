@@ -2,9 +2,13 @@ package org.apache.apex.adapters.spark;
 
 import org.apache.apex.adapters.spark.operators.BaseInputOperatorSerializable;
 import org.apache.spark.SparkContext;
+import org.apache.spark.ml.linalg.Vector;
 import org.apache.spark.rdd.RDD;
+import scala.collection.Seq;
+import scala.reflect.ClassTag;
 
 import java.io.Serializable;
+import java.util.List;
 
 //@DefaultSerializer(JavaSerializer.class)
 public class ApexContext extends SparkContext implements Serializable
@@ -35,4 +39,10 @@ public class ApexContext extends SparkContext implements Serializable
 
     return rdd;
   }
+
+  @Override
+  public <T> ApexRDD<T> parallelize(Seq<T> seq, int numSlices, ClassTag<T> evidence$1) {
+    return (ApexRDD<T>) super.parallelize(seq, numSlices, evidence$1);
+  }
+
 }

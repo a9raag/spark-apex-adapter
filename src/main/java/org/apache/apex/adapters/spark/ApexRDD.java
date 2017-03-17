@@ -58,7 +58,7 @@ public class ApexRDD<T> extends ScalaApexRDD<T> implements Serializable {
     public Partition[] partitions_=getPartitions();
     protected Option<Partitioner> partitioner = (Option<Partitioner>) new ApexRDDOptionPartitioner();
     Logger log = LoggerFactory.getLogger(ApexRDD.class);
-    boolean launchOnCluster=true;
+    boolean launchOnCluster=false;
 
 
     public ApexRDD(RDD<T> rdd, ClassTag<T> classTag) {
@@ -82,7 +82,7 @@ public class ApexRDD<T> extends ScalaApexRDD<T> implements Serializable {
 
     @Override
     public Option<Partitioner> partitioner() {
-        return new ApexRDDOptionPartitioner();
+        return (Option<Partitioner>) new ApexRDDOptionPartitioner();
     }
 
     @Override
@@ -146,7 +146,6 @@ public class ApexRDD<T> extends ScalaApexRDD<T> implements Serializable {
         temp.dag=cloneDag;
         return temp;
     }
-
 
 
 

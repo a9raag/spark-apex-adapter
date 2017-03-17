@@ -26,6 +26,7 @@ public class SVMTrain {
 
 // Clear the default threshold.
         model.clearThreshold();
-        model.save(sc,properties.getProperty("SVMModelPath"));
+        model.toPMML(properties.getProperty("SVMModelPath"));
     }
 }
+    
